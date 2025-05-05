@@ -49,11 +49,11 @@ class HomeController extends Controller
             $exists = Employee::where('code', $data['code'])
                     ->whereDate('created_at', Carbon::today())
                     ->exists();
-            // if ($exists) {
-            //     return response()->json([
-            //         'message' => '❌ Nhân viên này đã được thêm hôm nay!'
-            //     ], 500);
-            // }
+            if ($exists) {
+                return response()->json([
+                    'message' => '❌ Nhân viên này đã được thêm hôm nay!'
+                ], 500);
+            }
             Employee::create($data);
             return response()->json([
                 'message' => '✅ Đăng kí thành công!',
