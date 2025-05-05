@@ -25,3 +25,5 @@ Route::post('/employee/store', 'TopController@exportQR')->name('top.export.qr');
 
 Route::post('/employee/scan', 'HomeController@scanQR')->name('home.scan.qr');
 
+Route::get('/employees-table', 'HomeController@getEmployees')->name('home.employees');
+

@@ -104,9 +104,10 @@
         </div>
     </div>
     <div class="modal fade" id="responseModal" tabindex="-1" role="dialog" aria-labelledby="responseModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-body text-center" id="modalContent">
+                    <!-- Nội dung modal -->
                 </div>
                 <button id="downloadQRCode" class="btn btn-primary mt-3">Tải về mã QR</button>
             </div>

@@ -21,12 +21,12 @@
                 <input type="date" name="created_at" class="form-control" placeholder="Created At" value="{{ request('created_at') }}">
             </div>
             <div class="col-12 col-md-9">
-                <button type="submit" class="btn btn-primary mb-2">Filter</button>
-                <a href="{{ url('/home') }}" class="btn btn-secondary mb-2">Reset</a>
+                <button type="submit" class="btn btn-primary mb-2">Tìm kiếm</button>
+                <a href="{{ url('/home') }}" class="btn btn-secondary mb-2">Hoàn tác</a>
                 @php
                     $query = http_build_query(request()->only(['name', 'code', 'class', 'enterprise', 'phone', 'created_at']));
                 @endphp
-                <a href="{{ url('/export?' . $query) }}" class="btn btn-success mb-2">Export Excel</a>
+                <a href="{{ url('/export?' . $query) }}" class="btn btn-success mb-2">Xuất excel</a>
                 <button class="btn btn-info mb-2" type="button" onclick="startScanner()">Quét QR</button>
             </div>
         </div>
@@ -49,35 +49,24 @@
         </div>
 	</div>
 
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Tên</th>
-                <th>Mã Sinh Viên</th>
-                <th>Lớp</th>
-                <th>Xí Nghiệp</th>
-                <th>Sđt</th>
-                <th>Ngày</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($employees as $employee)
-                <tr>
-                    <td>{{ $employee->name }}</td>
-                    <td>{{ $employee->code }}</td>
-                    <td>{{ $employee->class }}</td>
-                    <td>{{ $employee->enterprise }}</td>
-                    <td>{{ $employee->phone }}</td>
-                    <td>{{ $employee->created_at->format('Y/m/d') }}</td>
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
-
-    <!-- Phân trang -->
-    {{ $employees->links() }}
+    <div id="employees-table">
+        @include('components.employees-table', ['employees' => $employees])
+    </div>
 </div>
 <script>
+    function showLoading() {
+        const loading = document.getElementById("loading");
+        loading.style.visibility = "visible";
+        loading.style.opacity = "1";
+    }
+
+    function hideLoading() {
+        const loading = document.getElementById("loading");
+        loading.style.opacity = "0";
+        setTimeout(() => {
+            loading.style.visibility = "hidden";
+        }, 300); // trùng với transition
+    }
     const html5QrCode = new Html5Qrcode("reader");
 
     function startScanner() {
@@ -86,7 +75,11 @@
             { fps: 10, qrbox: 250 },
             onScanSuccess,
             error => {}
-        );
+        )
+        .finally(() => {
+            hideLoading();
+        });
+
     }
 
     function stopScanner() {
@@ -107,6 +100,7 @@
 
    function onScanSuccess(qrMessage) {
         stopScanner();
+        showLoading();
         fetch("{{ route('home.scan.qr') }}", {
             method: "POST",
             headers: {
@@ -117,7 +111,8 @@
         })
         .then(response => response.json())
         .then(data => {
-            showSnackbar(data.message, () => {
+            showSnackbar(data.message, async() => {
+                reloadEmployeesTable()
                 startScanner(); 
             });
         })
@@ -125,7 +120,16 @@
             showSnackbar(data.message, () => {
                 startScanner();
             });
-        });
+        })
+    }
+
+    function reloadEmployeesTable() {
+        const params = new URLSearchParams(window.location.search);
+        fetch("/employees-table?" + params.toString())
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById("employees-table").innerHTML = html;
+            });
     }
 </script>
 @endsection

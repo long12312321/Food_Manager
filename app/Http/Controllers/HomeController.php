@@ -28,7 +28,13 @@ class HomeController extends Controller
     public function index(Request $request)
     {
         $employees = $this->filterEmployees($request)->paginate(10);
-        return view('home', compact('employees'));
+        return view('home', compact('employees'))->render();
+    }
+
+    public function getEmployees(Request $request)
+    {
+        $employees = $this->filterEmployees($request)->paginate(10)->appends(request()->query());
+        return view('components.employees-table', compact('employees'))->render();
     }
 
     public function exportExcel(Request $request)
@@ -43,11 +49,11 @@ class HomeController extends Controller
             $exists = Employee::where('code', $data['code'])
                     ->whereDate('created_at', Carbon::today())
                     ->exists();
-            if ($exists) {
-                return response()->json([
-                    'message' => '❌ Nhân viên này đã được thêm hôm nay!'
-                ], 500);
-            }
+            // if ($exists) {
+            //     return response()->json([
+            //         'message' => '❌ Nhân viên này đã được thêm hôm nay!'
+            //     ], 500);
+            // }
             Employee::create($data);
             return response()->json([
                 'message' => '✅ Đăng kí thành công!',

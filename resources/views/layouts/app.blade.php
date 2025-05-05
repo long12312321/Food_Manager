@@ -65,10 +65,30 @@
         img[alt="Info icon"] {
             display: none;
         }
+        #loading {
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s, opacity 0.3s;
+            position: fixed;
+            z-index: 9999;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
     </style>
 </head>
 <body>
     <div id="app">
+        <div id="loading" >
+            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                <span class="visually-hidden"></span>
+            </div>
+        </div>
         <div id="snackbar"></div>
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
             <div class="container">
@@ -79,7 +99,12 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav mr-auto">
-
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('home') ? 'font-weight-bold' : '' }}" href="{{ route('home') }}">Thông tin nhân viên</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('register') ? 'font-weight-bold' : '' }}" href="{{ route('register') }}">Đăng kí tài khoản</a>
+                        </li>
                     </ul>
 
                     <!-- Right Side Of Navbar -->
