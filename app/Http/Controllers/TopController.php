@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\QR;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Hash;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class TopController extends Controller
@@ -13,21 +16,31 @@ class TopController extends Controller
     }
 
     public function exportQR(Request $request) {
-         $request->validate([
-            'name' => 'required',
-            'code' => 'required',
-            'class' => 'required',
-            'enterprise' => 'required',
-            'phone' => 'required',
-        ]);
+        try {
+            $request->validate([
+                'name' => 'required',
+                'code' => 'required',
+                'class' => 'required',
+                'enterprise' => 'required',
+                'phone' => 'required',
+            ]);
 
-        $employeeData = $request->only(['name', 'code', 'class', 'enterprise', 'phone']);
-        $qrData = json_encode($employeeData); // Chuyển dữ liệu thành JSON để mã QR
+            $employeeData = $request->only(['name', 'code', 'class', 'enterprise', 'phone']);
+            $qrData = json_encode($employeeData); 
+            $hashId = hash('sha256', $qrData);
+            
+            QR::create(array_merge($employeeData, ['hash_id' => $hashId]));
+            // Tạo mã QR
+            $qrCodeImage = QrCode::size(300)->generate($hashId);
 
-        // Tạo mã QR
-        $qrCodeImage = QrCode::generate($qrData);
-
-        return response()->json(['qrCodeImage' => (string) $qrCodeImage]);
+            return response()->json([
+                'qrCodeImage' => (string) $qrCodeImage,
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => '❌ Server error'
+            ], 500);
+        }
 
     }
 }

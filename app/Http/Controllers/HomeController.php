@@ -6,7 +6,9 @@ use Illuminate\Http\Request;
 use App\Models\Employee;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\EmployeesExport;
+use App\Models\QR;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Crypt;
 
 class HomeController extends Controller
 {
@@ -44,9 +46,10 @@ class HomeController extends Controller
     }
 
     public function scanQR(Request $request) {
+      
         try {
-            $data = json_decode($request->input('qr_data'), true);
-            $exists = Employee::where('code', $data['code'])
+            $qr = QR::where('hash_id', $request->input('qr_data'))->first();
+            $exists = Employee::where('code', $qr['code'])
                     ->whereDate('created_at', Carbon::today())
                     ->exists();
             if ($exists) {
@@ -54,16 +57,23 @@ class HomeController extends Controller
                     'message' => '❌ Nhân viên này đã được thêm hôm nay!'
                 ], 500);
             }
-            Employee::create($data);
+            Employee::create([
+                'name' => $qr['name'],
+                'code' => $qr['code'],
+                'class' => $qr['class'],
+                'enterprise' => $qr['enterprise'],
+                'phone' => $qr['phone'],
+            ]);
+
             return response()->json([
                 'message' => '✅ Đăng kí thành công!',
-                'status' => 200
-            ]);
+            ], 200);
+
         } catch (\Exception $e) {
+            
             return response()->json([
                 'message' => '❌ Server error',
-                'status' => 500
-            ]);
+            ], 500);
         }
     }
 

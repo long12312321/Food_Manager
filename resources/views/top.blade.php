@@ -109,7 +109,7 @@
                 <div class="modal-body text-center" id="modalContent">
                     <!-- Nội dung modal -->
                 </div>
-                <button id="downloadQRCode" class="btn btn-primary mt-3">Tải về mã QR</button>
+                <button id="downloadQRCode" class="btn btn-primary mt-3" style="display: none;">Tải về mã QR</button>
             </div>
         </div>
     </div>
@@ -131,13 +131,23 @@ document.addEventListener('DOMContentLoaded', function () {
             },
             body: formData
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => {
+                    throw new Error(err.message);
+                });
+            }
+            return response.json();
+        })
         .then(data => {
             qr = data.qrCodeImage;
             $('#modalContent').html(data.qrCodeImage);
+            $('#downloadQRCode').show();
             $('#responseModal').modal('show'); // Hiển thị modal (yêu cầu jQuery + Bootstrap)
         })
         .catch(error => {
+            $('#downloadQRCode').hide();
+            $('#modalContent').html('<p class="mb-0">❌ Sinh viên này đã có QR</p>');
             $('#responseModal').modal('show');
         });
     });
