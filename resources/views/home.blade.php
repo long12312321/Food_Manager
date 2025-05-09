@@ -111,14 +111,22 @@
         })
         .then(response => response.json())
         .then(data => {
+            if(data.message === '❌ Nhân viên này đã được thêm hôm nay!') {
+                hideLoading();
+                showSnackbar(data.message, () => {
+                    stopScanner();
+                });
+            } else {
             showSnackbar(data.message, async() => {
                 reloadEmployeesTable()
                 startScanner(); 
             });
+            }
         })
         .catch(error => {
+            hideLoading();
             showSnackbar(data.message, () => {
-                startScanner();
+                stopScanner();
             });
         })
     }
