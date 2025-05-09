@@ -109,23 +109,23 @@
             },
             body: JSON.stringify({ qr_data: qrMessage })
         })
-        .then(response => response.json())
-        .then(data => {
-            if(data.message === '❌ Nhân viên này đã được thêm hôm nay!') {
-                hideLoading();
-                showSnackbar(data.message, () => {
-                    stopScanner();
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => {
+                    throw new Error(err.message);
                 });
-            } else {
-            showSnackbar(data.message, async() => {
+            }
+            return response.json();
+        })
+        .then(data => {
+             showSnackbar(data.message, async() => {
                 reloadEmployeesTable()
                 startScanner(); 
             });
-            }
         })
         .catch(error => {
             hideLoading();
-            showSnackbar(data.message, () => {
+            showSnackbar(error.message, () => {
                 stopScanner();
             });
         })
