@@ -109,14 +109,7 @@
             },
             body: JSON.stringify({ qr_data: qrMessage })
         })
-        .then(response => {
-            if (!response.ok) {
-                return response.json().then(err => {
-                    throw new Error(err.message);
-                });
-            }
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
             showSnackbar(data.message, async() => {
                 reloadEmployeesTable()
